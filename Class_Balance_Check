@@ -1,0 +1,174 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
+# precision
+precision_df = pd.DataFrame({
+    'layers (-20)': [0.81, 0.72, 0.61, 0.81, 0.83],
+    'layers (-15)': [0.81, 0.68, 0.61, 0.81, 0.81],
+    'layers (-10)': [0.74, 0.77, 0.56, 0.82, 0.81],
+    'layers (-5)': [0.78, 0.63, 0.48, 0.69, 0.82],
+    'layers (-0)': [0.79, 0.68, 0.52, 0.72, 0.81]
+}, index=['class_1', 'class_2', 'class_3', 'class_4', 'class_5'])
+precision_df['Class'] = precision_df.index
+
+# recall
+recall_df = pd.DataFrame({
+    'layers (-20)': [0.92, 0.74, 0.45, 0.82, 0.91],
+    'layers (-15)': [0.85, 0.77, 0.38, 0.85, 0.92],
+    'layers (-10)': [0.89, 0.58, 0.54, 0.82, 0.86],
+    'layers (-5)': [0.86, 0.70, 0.28, 0.81, 0.82],
+    'layers (-0)': [0.92, 0.69, 0.39, 0.77, 0.81]
+}, index=['class_1', 'class_2', 'class_3', 'class_4', 'class_5'])
+recall_df['Class'] = recall_df.index
+
+# f1 score
+f1_df = pd.DataFrame({
+    'layers (-20)': [0.86, 0.73, 0.52, 0.82, 0.86],
+    'layers (-15)': [0.83, 0.72, 0.47, 0.83, 0.86],
+    'layers (-10)': [0.81, 0.66, 0.55, 0.82, 0.84],
+    'layers (-5)': [0.82, 0.66, 0.36, 0.75, 0.82],
+    'layers (-0)': [0.85, 0.68, 0.45, 0.75, 0.81]
+}, index=['class_1', 'class_2', 'class_3', 'class_4', 'class_5'])
+f1_df['Class'] = f1_df.index
+
+# specificity
+specificity_df = pd.DataFrame({
+    'layers (-20)': [0.95, 0.93, 0.93, 0.95, 0.95],
+    'layers (-15)': [0.95, 0.91, 0.94, 0.95, 0.95],
+    'layers (-10)': [0.92, 0.96, 0.89, 0.96, 0.95],
+    'layers (-5)': [0.94, 0.90, 0.92, 0.91, 0.96],
+    'layers (-0)': [0.94, 0.92, 0.91, 0.93, 0.95]
+}, index=['class_1', 'class_2', 'class_3', 'class_4', 'class_5'])
+specificity_df['Class'] = specificity_df.index
+
+
+dropout_precision_df = pd.DataFrame({
+    'No Dropout': [0.77, 0.66, 0.42, 0.73, 0.81],
+    '10% Dropout': [0.76, 0.64, 0.52, 0.73, 0.77],
+    '20% Dropout': [0.80, 0.69, 0.46, 0.75, 0.73],
+    '30% Dropout': [0.70, 0.71, 0.44, 0.67, 0.89]
+}, index=['class_1', 'class_2', 'class_3', 'class_4', 'class_5'])
+dropout_precision_df['Class'] = dropout_precision_df.index
+
+dropout_recall_df = pd.DataFrame({
+    'No Dropout': [0.80, 0.59, 0.43, 0.75, 0.82],
+    '10% Dropout': [0.81, 0.66, 0.38, 0.80, 0.84],
+    '20% Dropout': [0.95, 0.57, 0.39, 0.70, 0.88],
+    '30% Dropout': [0.93, 0.46, 0.46, 0.82, 0.68]
+}, index=['class_1', 'class_2', 'class_3', 'class_4', 'class_5'])
+dropout_recall_df['Class'] = dropout_recall_df.index
+
+dropout_f1_df = pd.DataFrame({
+    'No Dropout': [0.78, 0.62, 0.43, 0.74, 0.81],
+    '10% Dropout': [0.79, 0.65, 0.44, 0.77, 0.80],
+    '20% Dropout': [0.86, 0.62, 0.42, 0.73, 0.80],
+    '30% Dropout': [0.80, 0.56, 0.45, 0.74, 0.77]
+}, index=['class_1', 'class_2', 'class_3', 'class_4', 'class_5'])
+dropout_f1_df['Class'] = dropout_f1_df.index
+
+dropout_specificity_df = pd.DataFrame({
+    'No Dropout': [0.94, 0.92, 0.85, 0.93, 0.95],
+    '10% Dropout': [0.94, 0.91, 0.91, 0.93, 0.94],
+    '20% Dropout': [0.94, 0.94, 0.89, 0.94, 0.92],
+    '30% Dropout': [0.90, 0.95, 0.85, 0.90, 0.98]
+}, index=['class_1', 'class_2', 'class_3', 'class_4', 'class_5'])
+dropout_specificity_df['Class'] = dropout_specificity_df.index
+
+
+sns.set(style="whitegrid")
+plt.rcParams.update({'font.size': 12})
+
+
+layer_metrics = [
+    ('Precision', precision_df),
+    ('Recall', recall_df),
+    ('F1-Score', f1_df),
+    ('Specificity', specificity_df)
+]
+
+
+dropout_metrics = [
+    ('Precision', dropout_precision_df),
+    ('Recall', dropout_recall_df),
+    ('F1-Score', dropout_f1_df),
+    ('Specificity', dropout_specificity_df)
+]
+
+
+def plot_by_metric(metrics_list, experiment_type):
+    for metric_name, df in metrics_list:
+        plt.figure(figsize=(12, 6))
+
+        melted_df = df.melt(id_vars='Class',
+                           var_name='Configuration',
+                           value_name='Value')
+
+
+        ax = sns.barplot(x='Configuration', y='Value', hue='Class', data=melted_df, palette='viridis')
+        plt.title(f'{metric_name} Across Different {experiment_type}', fontsize=16)
+        plt.xlabel(f'{experiment_type}', fontsize=14)
+        plt.ylabel(f'{metric_name} Value', fontsize=14)
+        plt.ylim(0, 1.1)
+
+        for i, bar in enumerate(ax.patches):
+            if bar.get_height() > 0.01:
+                ax.text(
+                    bar.get_x() + bar.get_width()/2.,
+                    bar.get_height() + 0.03,  
+                    f'{bar.get_height():.2f}',
+                    ha='center',
+                    va='bottom',
+                    fontsize=9
+                )
+
+        plt.legend(title='Class', loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=5)
+        plt.tight_layout()
+        plt.savefig(f'{metric_name.lower().replace("-", "_")}_by_{experiment_type.lower().replace(" ", "_")}.jpg', dpi=300)
+        plt.show()
+
+def plot_all_metrics_subplot(metrics_list, experiment_type):
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    axes = axes.flatten()
+
+    for i, (metric_name, df) in enumerate(metrics_list):
+        ax = axes[i]
+
+        melted_df = df.melt(id_vars='Class',
+                           var_name='Configuration',
+                           value_name='Value')
+
+        sns.barplot(x='Configuration', y='Value', hue='Class', data=melted_df, palette='viridis', ax=ax)
+
+        ax.set_title(f'{metric_name} Across Different {experiment_type}', fontsize=14)
+        ax.set_xlabel(f'{experiment_type}', fontsize=12)
+        ax.set_ylabel(f'{metric_name} Value', fontsize=12)
+        ax.set_ylim(0, 1.1)
+
+        for bar in ax.patches:
+            if bar.get_height() > 0.01:
+                ax.text(
+                    bar.get_x() + bar.get_width()/2.,
+                    bar.get_height() + 0.03,  
+                    f'{bar.get_height():.2f}',
+                    ha='center',
+                    va='bottom',
+                    fontsize=7
+                )
+
+        if i == 0:
+
+            ax.legend(title='Class', loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=5)
+        else:
+            ax.legend([], [], frameon=False)
+
+    plt.tight_layout()
+    plt.savefig(f'all_metrics_by_{experiment_type.lower().replace(" ", "_")}.jpg', dpi=300, bbox_inches='tight')
+    plt.show()
+
+
+# Execute visualizations
+print("Plotting layer configuration metrics...")
+plot_by_metric(layer_metrics, "Layer Configurations")
+plot_all_metrics_subplot(layer_metrics, "Layer Configurations")
