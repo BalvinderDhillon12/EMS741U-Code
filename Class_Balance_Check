@@ -168,7 +168,7 @@ def plot_all_metrics_subplot(metrics_list, experiment_type):
     plt.show()
 
 
-# Execute visualizations
+# visualisations
 print("Plotting layer configuration metrics...")
 plot_by_metric(layer_metrics, "Layer Configurations")
 plot_all_metrics_subplot(layer_metrics, "Layer Configurations")
